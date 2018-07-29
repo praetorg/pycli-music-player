@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from pathlib import Path
-import io
 import os
 import sys
 import shutil
