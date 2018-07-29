@@ -3,12 +3,12 @@
 def music_format(filename):
     item = str(open(filename, "rb").read(32))
     if 'mp4' in item:
-        musicformat = 'aac'
+        return 'aac'
     elif 'Ogg' in item:
-        musicformat = 'ogg'
+        return 'ogg'
     elif 'ID3' in item:
-        musicformat = 'mp3'
+        return 'mp3'
+    elif 'fLaC' in item:
+        return 'flac'
     else:
-        musicformat = None
-
-    return musicformat
+        return None
