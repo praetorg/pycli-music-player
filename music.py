@@ -157,7 +157,7 @@ def get_player():
     elif shutil.which("ffplay"):
         return "ffplay"
     else:
-        printout("ffmpeg or avconf not found, exiting.")
+        printout("ffmpeg or avconv not found, exiting.")
         shutdownfn()
 
 
