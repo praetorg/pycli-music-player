@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import sys
+import signal
 import shutil
 import random
 import subprocess
@@ -21,22 +22,27 @@ Ctrl-c to exit.
 
 HELPER2 = """
 pycli-music console commands:
-    's', 'skip', 'n', 'next': Next song
-    'p', 'prev', 'b', 'back': Previous song
+    'k', 'skip', 'n', 'next': Next song
+    'e', 'prev', 'b', 'back': Previous song
     'x', 'exit', 'q', 'quit': Exit player
+    's', 'stop'             : Stop song
+    'p', 'play'             : Play song
     'repeat'                : Toggle repeat
     'shuffle'               : Toggle shuffle
 """
 
 
-MUSICPROCESS = None
-
-
 def main():
-    while True:
-        song = start.current()
-        play(song)
-        start.next()
+    thread = threading.Thread(target=console)
+    thread.daemon = True
+    thread.start()
+    while start.online():
+        while start.playing():
+            printout(f'Playing song: {start.current()}')
+            start.playfn()
+            if start.complete():
+                start.next()
+    
 
 
 class Songs:
@@ -46,6 +52,9 @@ class Songs:
         self.repeat = repeat
         self.filename = filename
         self.shuffle = shuffle
+        self.playstate = True
+        self.onstate = True
+        self.musicprocess = False
         if filename:
             music = filename
         else:
@@ -67,7 +76,7 @@ class Songs:
             except FileNotFoundError:
                 self.songs.pop(song)
         if len(self.songs) < 1:
-            print('\r\nNo valid files to play.')
+            print('\nNo valid files to play.')
             shutdownfn()
         if shuffle:
             self.shufflefn()
@@ -88,7 +97,7 @@ class Songs:
 
     def previous(self):
         if self.counter > 0:
-            self.counter-=2
+            self.counter-=1
 
 
     def current(self):
@@ -113,42 +122,71 @@ class Songs:
 
 
     def end(self):
-        self.repeat = False
-        self.counter = len(self.songs) - 1
+        self.onstate = False
+        self.stop()
+
+
+    def stop(self):
+        self.playstate = False
+        if self.musicprocess.poll() is None:
+            self.musicprocess.terminate()
+
+
+    def play(self):
+        self.playstate = True
+
+
+    def complete(self):
+        if self.musicprocess.poll() is 0:
+            return True
+        else:
+            return False
         
 
-def play(song):
-    global MUSICPROCESS
-    printout(f'Playing song: {song}')
-    command = f'{PLAYER} -nodisp -autoexit -hide_banner "{song}"'
-    MUSICPROCESS = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, universal_newlines=True)
-    MUSICPROCESS.wait()
+    def playfn(self):
+        command = f'{PLAYER} -nodisp -autoexit -hide_banner "{self.current()}"'
+        self.musicprocess = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, universal_newlines=True)
+        self.musicprocess.wait()
+
+
+    def playing(self):
+        return self.playstate
+
+
+    def online(self):
+        return self.onstate
 
 
 def console():
-    try:
-        while True:
-            control = None
-            control = input()
-            if control == 'skip' or control == 'next' or control == 's' or control == 'n':
-                MUSICPROCESS.terminate()
-            elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
-                shutdownfn()
-            elif control == 'back' or control == 'prev' or control == 'p' or control =='b':
-                start.previous()
-                MUSICPROCESS.terminate()
-            elif control == 'help' or control == 'h' or control == '?':
-                printout(HELPER2)
-            elif control == 'repeat':
-                start.repeat_toggle()
-            elif control == 'shuffle':
-                start.shuffle_toggle()
-    except KeyboardInterrupt:
-        shutdownfn()
+    while True:
+        control = None
+        control = input()
+        if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
+            start.stop()
+            start.next()
+            start.play()
+        elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
+            shutdownfn()
+        elif control == 'back' or control == 'prev' or control == 'e' or control =='b':
+            start.stop()
+            start.previous()
+            start.play()
+        elif control == 'stop' or control == 's':
+            printout('Stopping.')
+            start.stop()
+        elif control == 'play' or control == 'p':
+            start.play()
+        elif control == 'help' or control == 'h' or control == '?':
+            printout(HELPER2)
+        elif control == 'repeat':
+            start.repeat_toggle()
+        elif control == 'shuffle':
+            start.shuffle_toggle()
 
 
 def printout(statement):
-    print(f'\r\n{statement}\r\npycli-music>>> ', end='')
+    print("\033[K\033[F\033[K", end='')
+    print(f'{statement}\npycli-music>>> ', end='') 
 
 
 def get_player():
@@ -157,17 +195,22 @@ def get_player():
     elif shutil.which("ffplay"):
         return "ffplay"
     else:
-        printout("ffmpeg or avconv not found, exiting.")
+        print("\nffmpeg or avconv not found, exiting.")
         shutdownfn()
 
 
 def shutdownfn():
-    MUSICPROCESS.terminate()
+    print('\nExiting.')
     start.end()
-    sys.exit()
+    sys.exit(0)
+
+
+def sigint_handler(signal, frame):
+    shutdownfn()
 
 
 PLAYER = get_player()
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 if __name__ == '__main__':
@@ -177,7 +220,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         if "--help" in sys.argv or "--?" in sys.argv:
             printout(HELPER)
-            shutdownfn()
+            sys.exit(0)
         for arg in sys.argv[1:]:
             if arg.startswith('-'):
                 if '--' in arg:
@@ -191,10 +234,7 @@ if __name__ == '__main__':
                     repeat = True
             else:
                 filename = arg
-    try:
-        thread = threading.Thread(target=console)
-        thread.start()
-        start = Songs(filename, shuffle, repeat)
-        main()
-    except KeyboardInterrupt:
-        shutdownfn()
+    start = Songs(filename, shuffle, repeat)
+    print(f'pycli-music: Shuffle: {"On" if shuffle else "Off"} Repeat: {"On" if repeat else "Off"}\n')
+    main()
+
