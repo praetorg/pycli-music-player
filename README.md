@@ -1,6 +1,6 @@
 Play all music from ~/Music by default or supply a directory or file to play.
 
-Uses ffmpeg or avconf.
+Uses ffmpeg or avconv.
 
 Arguments:
 
