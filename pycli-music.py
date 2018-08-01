@@ -36,16 +36,34 @@ def main():
     thread = threading.Thread(target=console)
     thread.daemon = True
     thread.start()
-    while start.online():
-        while start.playing():
-            printout(f'Playing song: {start.current()}')
-            start.playfn()
-            if start.complete():
-                start.next()
-    
+    try:
+        while player.online():
+            try:
+                while player.playing():
+                    printout(f'Playing song: {player.current()}')
+                    player.playfn()
+                    if player.complete():
+                        player.next()
+            except EndOfPlaylist:
+                printout('End of playlist.')
+    except PlayerNotFound:
+        printout('FFmpeg or avconv not found.')
+    except FileNotFoundError:
+        printout('No valid files found.')
+    finally:
+        player.end()
+        shutdownfn()
 
 
-class Songs:
+class EndOfPlaylist(Exception):
+    pass
+
+
+class PlayerNotFound(Exception):
+    pass
+
+
+class Player:
     def __init__(self, filename=None, shuffle=False, repeat=False):
         self.songs = list()
         self.counter = 0
@@ -55,6 +73,7 @@ class Songs:
         self.playstate = True
         self.onstate = True
         self.musicprocess = False
+        self.player = self.get_player()
         if filename:
             music = filename
         else:
@@ -76,10 +95,9 @@ class Songs:
             except FileNotFoundError:
                 self.songs.pop(song)
         if len(self.songs) < 1:
-            print('\nNo valid files to play.')
-            shutdownfn()
-        if shuffle:
-            self.shufflefn()
+            self.stop()
+            raise FileNotFoundError
+        self.shufflefn()
 
 
     def next(self):
@@ -88,11 +106,13 @@ class Songs:
         elif self.repeat:
             self.__init__(self.filename, self.shuffle, self.repeat)
         else:
-            shutdownfn()
+            self.stop()
+            raise EndOfPlaylist
 
 
     def shufflefn(self):
-        random.shuffle(self.songs)
+        if self.shuffle:
+            random.shuffle(self.songs)
 
 
     def previous(self):
@@ -106,19 +126,19 @@ class Songs:
 
     def repeat_toggle(self):
         self.repeat = not self.repeat
-        if self.repeat:
-            printout(f'Repeat on.')
-        else:
-            printout(f'Repeat off.')
+
+
+    def repeat_state(self):
+        return self.repeat
 
     
     def shuffle_toggle(self):
         self.shuffle = not self.shuffle
-        if self.shuffle:
-            printout(f'Shuffle on.')
-            self.shufflefn()
-        else:
-            printout(f'Shuffle off.')
+        self.shufflefn()
+
+
+    def shuffle_state(self):
+        return self.shuffle
 
 
     def end(self):
@@ -144,9 +164,10 @@ class Songs:
         
 
     def playfn(self):
-        command = f'{PLAYER} -nodisp -autoexit -hide_banner "{self.current()}"'
-        self.musicprocess = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, universal_newlines=True)
-        self.musicprocess.wait()
+        if self.player:
+            command = f'{self.player} -nodisp -autoexit -hide_banner "{self.current()}"'
+            self.musicprocess = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, universal_newlines=True)
+            self.musicprocess.wait()
 
 
     def playing(self):
@@ -157,31 +178,44 @@ class Songs:
         return self.onstate
 
 
+    def get_player(self):
+        if shutil.which("avplay"):
+            return "avplay"
+        elif shutil.which("ffplay"):
+            return "ffplay"
+        else:
+            raise PlayerNotFound
+            
+
+
 def console():
     while True:
         control = None
         control = input()
         if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
-            start.stop()
-            start.next()
-            start.play()
+            player.stop()
+            player.next()
+            player.play()
         elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
+            player.end()
             shutdownfn()
         elif control == 'back' or control == 'prev' or control == 'e' or control =='b':
-            start.stop()
-            start.previous()
-            start.play()
+            player.stop()
+            player.previous()
+            player.play()
         elif control == 'stop' or control == 's':
             printout('Stopping.')
-            start.stop()
+            player.stop()
         elif control == 'play' or control == 'p':
-            start.play()
+            player.play()
         elif control == 'help' or control == 'h' or control == '?':
             printout(HELPER2)
         elif control == 'repeat':
-            start.repeat_toggle()
+            player.repeat_toggle()
+            printout(f'Repeat {"on" if player.repeat_state() else "off"}.')
         elif control == 'shuffle':
-            start.shuffle_toggle()
+            player.shuffle_toggle()
+            printout(f'Shuffle {"on" if player.shuffle_state() else "off"}.')
 
 
 def printout(statement):
@@ -189,19 +223,8 @@ def printout(statement):
     print(f'{statement}\npycli-music>>> ', end='') 
 
 
-def get_player():
-    if shutil.which("avplay"):
-        return "avplay"
-    elif shutil.which("ffplay"):
-        return "ffplay"
-    else:
-        print("\nffmpeg or avconv not found, exiting.")
-        shutdownfn()
-
-
 def shutdownfn():
     print('\nExiting.')
-    start.end()
     sys.exit(0)
 
 
@@ -209,7 +232,6 @@ def sigint_handler(signal, frame):
     shutdownfn()
 
 
-PLAYER = get_player()
 signal.signal(signal.SIGINT, sigint_handler)
 
 
@@ -234,7 +256,6 @@ if __name__ == '__main__':
                     repeat = True
             else:
                 filename = arg
-    start = Songs(filename, shuffle, repeat)
+    player = Player(filename, shuffle, repeat)
     print(f'pycli-music: Shuffle: {"On" if shuffle else "Off"} Repeat: {"On" if repeat else "Off"}\n')
     main()
-
