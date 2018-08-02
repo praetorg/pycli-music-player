@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import sys
+import time
 import signal
 import shutil
 import random
@@ -165,6 +166,7 @@ class Player:
     def songComplete(self):
         if self.musicprocess:
             if self.musicprocess.poll() is 0:
+                time.sleep(1)
                 return True
             else:
                 return False
@@ -232,7 +234,6 @@ def console():
             player.play()
         elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
             player.end()
-            shutdownfn()
         elif control == 'back' or control == 'prev' or control == 'e' or control == 'b':
             printout(f'Playing song: {player.previousSong()}')
             player.stop()
