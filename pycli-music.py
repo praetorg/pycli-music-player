@@ -2,7 +2,6 @@
 from pathlib import Path
 import os
 import sys
-import time
 import signal
 import shutil
 import random
@@ -165,11 +164,11 @@ class Player:
 
     def songComplete(self):
         if self.musicprocess:
-            if self.musicprocess.poll() is 0:
-                time.sleep(3)
+            if self.musicprocess.poll() is 0 and self.previouspoll != 0:
                 return True
             else:
                 return False
+            self.previouspoll = self.musicprocess.poll()
 
 
     def playfn(self):
