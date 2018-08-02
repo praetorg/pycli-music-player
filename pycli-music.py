@@ -74,11 +74,11 @@ class Player:
                 songs.append(os.path.join(os.getcwd(), music))
         for song in songs:
             try:
-                form = musicformat.music_format(song)
+                form = musicformat.musicFormatHex(song)
                 if form is None:
-                    songs.pop(song)
+                    songs.remove(song)
             except FileNotFoundError:
-                songs.pop(song)
+                songs.remove(song)
         if len(songs) < 1:
             self.stop()
             raise FileNotFoundError
