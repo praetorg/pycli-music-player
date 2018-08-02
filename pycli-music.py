@@ -52,6 +52,7 @@ class Player:
         self.playstate = True
         self.onstate = True
         self.musicprocess = False
+        self.previouspoll = None
         self.player = self.getPlayer()
         self.shufflefn()
 
