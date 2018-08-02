@@ -34,6 +34,10 @@ pycli-music console commands:
 """
 
 
+no_console = False
+signal.signal(signal.SIGINT, sigintHandler)
+
+
 class EndOfPlaylist(Exception):
     pass
 
@@ -166,7 +170,7 @@ class Player:
     def songComplete(self):
         if self.musicprocess:
             if self.musicprocess.poll() is 0:
-                time.sleep(1)
+                time.sleep(2)
                 return True
             else:
                 return False
@@ -272,12 +276,7 @@ def sigintHandler(signal, frame):
     shutdownfn()
 
 
-no_console = False
-signal.signal(signal.SIGINT, sigintHandler)
-
-
 if __name__ == '__main__':
-    global no_console
     shuffle = False
     repeat = False
     filename = None
