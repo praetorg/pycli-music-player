@@ -12,10 +12,11 @@ import musicformat
 
 HELPER = """
 By default, play all music from ~/Music folder, else play supplied directory or file.
->music 'argument(s)' 'path'
+>pycli-music 'argument(s)' 'path'
 Arguments:
-    '-r','--repeat': Repeat all songs indefinitely
+    '-r','--repeat' : Repeat all songs indefinitely
     '-s','--shuffle': Shuffle all songs
+    '--no-console'  : Suppress console
 Short arguments may be combined, such as '-rs'.
 Ctrl-c to exit.
 """
@@ -273,6 +274,7 @@ signal.signal(signal.SIGINT, sigintHandler)
 if __name__ == '__main__':
     shuffle = False
     repeat = False
+    no_console = False
     filename = None
     if len(sys.argv) > 1:
         if "--help" in sys.argv or "--?" in sys.argv:
@@ -285,6 +287,8 @@ if __name__ == '__main__':
                         shuffle = True
                     if "--repeat" in arg:
                         repeat = True
+                    if "--no-console" in arg:
+                        no_console = True
                 if 's' in arg:
                     shuffle = True
                 if 'r' in arg:
@@ -293,9 +297,10 @@ if __name__ == '__main__':
                 filename = arg
     player = Player(filename, shuffle, repeat)
     print(f'pycli-music: Shuffle: {"On" if shuffle else "Off"} Repeat: {"On" if repeat else "Off"}\n')
-    thread = threading.Thread(target=console)
-    thread.daemon = True
-    thread.start()
+    if not no_console:
+        thread = threading.Thread(target=console)
+        thread.daemon = True
+        thread.start()
     player.nonblockingLoop()
     printout(f'Playing song: {player.currentSong()}')
     try:
