@@ -32,29 +32,6 @@ pycli-music console commands:
 """
 
 
-def main():
-    thread = threading.Thread(target=console)
-    thread.daemon = True
-    thread.start()
-    try:
-        while player.online():
-            try:
-                while player.playing():
-                    printout(f'Playing song: {player.current()}')
-                    player.playfn()
-                    if player.complete():
-                        player.next()
-            except EndOfPlaylist:
-                printout('End of playlist.')
-    except PlayerNotFound:
-        printout('FFmpeg or avconv not found.')
-    except FileNotFoundError:
-        printout('No valid files found.')
-    finally:
-        player.end()
-        shutdownfn()
-
-
 class EndOfPlaylist(Exception):
     pass
 
@@ -66,6 +43,7 @@ class PlayerNotFound(Exception):
 class Player:
     def __init__(self, filename=None, shuffle=False, repeat=False):
         self.songs = list()
+        self.thread = threading.Thread(target=self.blockingLoop)
         self.counter = 0
         self.repeat = repeat
         self.filename = filename
@@ -73,7 +51,12 @@ class Player:
         self.playstate = True
         self.onstate = True
         self.musicprocess = False
-        self.player = self.get_player()
+        self.player = self.getPlayer()
+        self.shufflefn()
+
+
+    def loadPlaylist(self, filename=None):
+        songs = list()
         if filename:
             music = filename
         else:
@@ -81,63 +64,84 @@ class Player:
         if os.path.isdir(music):
             for root, dirs, files in os.walk(music):
                 for name in files:
-                    self.songs.append(os.path.join(root, name))
+                    songs.append(os.path.join(root, name))
         else:
             if os.path.isabs(music):
-                self.songs.append(music)
+                songs.append(music)
             else:
-                self.songs.append(os.path.join(os.getcwd(), music))
-        for song in self.songs:
+                songs.append(os.path.join(os.getcwd(), music))
+        for song in songs:
             try:
                 form = musicformat.music_format(song)
                 if form is None:
-                    self.songs.pop(song)
+                    songs.pop(song)
             except FileNotFoundError:
-                self.songs.pop(song)
-        if len(self.songs) < 1:
+                songs.pop(song)
+        if len(songs) < 1:
             self.stop()
             raise FileNotFoundError
-        self.shufflefn()
+        return songs
 
 
     def next(self):
         if self.counter < len(self.songs) - 1:
-            self.counter+=1
+            self.counter += 1
         elif self.repeat:
-            self.__init__(self.filename, self.shuffle, self.repeat)
+            self.songs = self.nextsongs.copy()
+            self.nextsongs = self.loadPlaylist(self.filename)
+            self.counter = 0
         else:
             self.stop()
             raise EndOfPlaylist
 
 
     def shufflefn(self):
+        self.songs = self.loadPlaylist(self.filename)
+        self.nextsongs = self.loadPlaylist(self.filename)
         if self.shuffle:
             random.shuffle(self.songs)
+            random.shuffle(self.nextsongs)
 
 
     def previous(self):
         if self.counter > 0:
-            self.counter-=1
+            self.counter -= 1
 
 
-    def current(self):
+    def currentSong(self):
         return self.songs[self.counter]
 
 
-    def repeat_toggle(self):
+    def nextSong(self):
+        if self.counter < len(self.songs) - 1:
+            return self.songs[self.counter + 1]
+        elif self.repeat:
+            return self.nextsongs[0]
+        else:
+            return self.songs[self.counter]
+
+
+    def previousSong(self):
+        if self.counter > 0:
+            return self.songs[self.counter - 1]
+        else:
+            return self.songs[self.counter]
+
+
+    def repeatToggle(self):
         self.repeat = not self.repeat
 
 
-    def repeat_state(self):
+    def repeatState(self):
         return self.repeat
 
-    
-    def shuffle_toggle(self):
+
+    def shuffleToggle(self):
         self.shuffle = not self.shuffle
         self.shufflefn()
 
 
-    def shuffle_state(self):
+    def shuffleState(self):
         return self.shuffle
 
 
@@ -148,44 +152,72 @@ class Player:
 
     def stop(self):
         self.playstate = False
-        if self.musicprocess.poll() is None:
-            self.musicprocess.terminate()
+        if self.musicprocess:
+            if self.musicprocess.poll() is None:
+                self.musicprocess.terminate()
 
 
     def play(self):
         self.playstate = True
 
 
-    def complete(self):
-        if self.musicprocess.poll() is 0:
-            return True
-        else:
-            return False
-        
+    def songComplete(self):
+        if self.musicprocess:
+            if self.musicprocess.poll() is 0:
+                return True
+            else:
+                return False
+
 
     def playfn(self):
         if self.player:
-            command = f'{self.player} -nodisp -autoexit -hide_banner "{self.current()}"'
+            command = f'{self.player} -nodisp -autoexit -hide_banner "{self.currentSong()}"'
             self.musicprocess = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, universal_newlines=True)
             self.musicprocess.wait()
 
 
-    def playing(self):
+    def isPlaying(self):
         return self.playstate
 
 
-    def online(self):
+    def isOnline(self):
         return self.onstate
 
 
-    def get_player(self):
+    def getPlayer(self):
         if shutil.which("avplay"):
             return "avplay"
         elif shutil.which("ffplay"):
             return "ffplay"
         else:
             raise PlayerNotFound
-            
+
+
+    def nonblockingLoop(self, raise_end=True):
+        try:
+            self.thread.start()
+        except EndOfPlaylist:
+            self.end()
+            if raise_end:
+                raise EndOfPlaylist
+
+
+    def blockingLoop(self):
+        try:
+            while self.isOnline():
+                try:
+                    while self.isPlaying():
+                        self.playfn()
+                        if self.songComplete():
+                            self.next()
+                except EndOfPlaylist:
+                    raise EndOfPlaylist
+        except PlayerNotFound:
+            raise PlayerNotFound
+        except FileNotFoundError:
+            raise FileNotFoundError
+        finally:
+            self.end()
 
 
 def console():
@@ -193,13 +225,15 @@ def console():
         control = None
         control = input()
         if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
+            printout(f'Playing song: {player.nextSong()}')
             player.stop()
             player.next()
             player.play()
         elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
             player.end()
             shutdownfn()
-        elif control == 'back' or control == 'prev' or control == 'e' or control =='b':
+        elif control == 'back' or control == 'prev' or control == 'e' or control == 'b':
+            printout(f'Playing song: {player.previousSong()}')
             player.stop()
             player.previous()
             player.play()
@@ -207,20 +241,21 @@ def console():
             printout('Stopping.')
             player.stop()
         elif control == 'play' or control == 'p':
+            printout(f'Playing song: {player.currentSong()}')
             player.play()
         elif control == 'help' or control == 'h' or control == '?':
             printout(HELPER2)
         elif control == 'repeat':
-            player.repeat_toggle()
-            printout(f'Repeat {"on" if player.repeat_state() else "off"}.')
+            player.repeatToggle()
+            printout(f'Repeat {"on" if player.repeatState() else "off"}.')
         elif control == 'shuffle':
-            player.shuffle_toggle()
-            printout(f'Shuffle {"on" if player.shuffle_state() else "off"}.')
+            player.shuffleToggle()
+            printout(f'Shuffle {"on" if player.shuffleState() else "off"}.')
 
 
 def printout(statement):
     print("\033[K\033[F\033[K", end='')
-    print(f'{statement}\npycli-music>>> ', end='') 
+    print(f'{statement}\npycli-music>>> ', end='')
 
 
 def shutdownfn():
@@ -228,11 +263,11 @@ def shutdownfn():
     sys.exit(0)
 
 
-def sigint_handler(signal, frame):
+def sigintHandler(signal, frame):
     shutdownfn()
 
 
-signal.signal(signal.SIGINT, sigint_handler)
+signal.signal(signal.SIGINT, sigintHandler)
 
 
 if __name__ == '__main__':
@@ -258,4 +293,19 @@ if __name__ == '__main__':
                 filename = arg
     player = Player(filename, shuffle, repeat)
     print(f'pycli-music: Shuffle: {"On" if shuffle else "Off"} Repeat: {"On" if repeat else "Off"}\n')
-    main()
+    thread = threading.Thread(target=console)
+    thread.daemon = True
+    thread.start()
+    player.nonblockingLoop()
+    printout(f'Playing song: {player.currentSong()}')
+    try:
+        while player.isOnline():
+            if player.songComplete():
+                printout(f'Playing song: {player.currentSong()}')
+    except EndOfPlaylist:
+        print('\nEnd of playlist.')
+    except PlayerNotFound:
+        print('FFmpeg or avconv not found.')
+    except FileNotFoundError:
+        print('No valid files found.')
+    shutdownfn()
