@@ -310,7 +310,7 @@ if __name__ == '__main__':
     except EndOfPlaylist:
         print('\nEnd of playlist.')
     except PlayerNotFound:
-        print('FFmpeg or avconv not found.')
+        print('\nFFmpeg or avconv not found.')
     except FileNotFoundError:
-        print('No valid files found.')
+        print('\nNo valid files found.')
     shutdownfn()
