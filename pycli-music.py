@@ -256,8 +256,11 @@ def console():
 
 
 def printout(statement):
-    print("\033[K\033[F\033[K", end='')
-    print(f'{statement}\npycli-music>>> ', end='')
+    if not no_console:
+        print("\033[K\033[F\033[K", end='')
+        print(f'{statement}\npycli-music>>> ', end='')
+    else:
+        print(f'{statement}')
 
 
 def shutdownfn():
@@ -269,13 +272,14 @@ def sigintHandler(signal, frame):
     shutdownfn()
 
 
+no_console = False
 signal.signal(signal.SIGINT, sigintHandler)
 
 
 if __name__ == '__main__':
+    global no_console
     shuffle = False
     repeat = False
-    no_console = False
     filename = None
     if len(sys.argv) > 1:
         if "--help" in sys.argv or "--?" in sys.argv:
