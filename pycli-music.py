@@ -273,11 +273,9 @@ def shutdownfn():
 def sigintHandler(signal, frame):
     shutdownfn()
 
-    
-signal.signal(signal.SIGINT, sigintHandler)
-
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, sigintHandler)
     no_console = False
     shuffle = False
     repeat = False
