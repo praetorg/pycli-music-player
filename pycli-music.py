@@ -29,6 +29,7 @@ pycli-music console commands:
     'x', 'exit', 'q', 'quit': Exit player
     's', 'stop'             : Stop song
     'p', 'play'             : Play song
+    'w', 'pause'            : Pause song
     'repeat'                : Toggle repeat
     'shuffle'               : Toggle shuffle
 """
