@@ -173,13 +173,11 @@ class Player:
 
     def songComplete(self):
         if self.musicprocess:
-            currentpoll = self.musicprocess.poll()
-            if currentpoll is 0 and time.time() >= (self.truereturntime + 0.02) and self.lastpoll != 0:
+            if self.musicprocess.poll() is 0 and time.time() >= (self.truereturntime + 0.03):
                 self.truereturntime = time.time()
                 return True
             else:
                 return False
-            self.lastpoll = currentpoll
 
 
     def __songComplete(self):
