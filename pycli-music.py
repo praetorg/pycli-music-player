@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import sys
+import time
 import signal
 import shutil
 import random
@@ -33,10 +34,6 @@ pycli-music console commands:
 """
 
 
-class EndOfPlaylist(Exception):
-    pass
-
-
 class PlayerNotFound(Exception):
     pass
 
@@ -52,9 +49,11 @@ class Player:
         self.playstate = True
         self.onstate = True
         self.musicprocess = False
-        self.previouspoll = None
-        self.player = self.getPlayer()
-        self.shufflefn()
+        self.truereturntime = 0
+        self.lastpoll = 0
+        self.player = self.__getPlayer()
+        self.loadPlaylists()
+        self.__shuffle()
 
 
     def loadPlaylist(self, filename=None):
@@ -85,6 +84,11 @@ class Player:
         return songs
 
 
+    def loadPlaylists(self):
+        self.songs = self.loadPlaylist(self.filename)
+        self.nextsongs = self.loadPlaylist(self.filename)
+
+
     def next(self):
         if self.counter < len(self.songs) - 1:
             self.counter += 1
@@ -94,12 +98,11 @@ class Player:
             self.counter = 0
         else:
             self.stop()
-            raise EndOfPlaylist
+            self.counter = 0
 
 
-    def shufflefn(self):
-        self.songs = self.loadPlaylist(self.filename)
-        self.nextsongs = self.loadPlaylist(self.filename)
+    def __shuffle(self):
+        self.loadPlaylists()
         if self.shuffle:
             random.shuffle(self.songs)
             random.shuffle(self.nextsongs)
@@ -140,7 +143,7 @@ class Player:
 
     def shuffleToggle(self):
         self.shuffle = not self.shuffle
-        self.shufflefn()
+        self.__shuffle()
 
 
     def shuffleState(self):
@@ -161,21 +164,36 @@ class Player:
 
     def play(self):
         self.playstate = True
+        self.musicprocess.send_signal(signal.SIGCONT)
+
+
+    def pause(self):
+        self.musicprocess.send_signal(signal.SIGSTOP)
 
 
     def songComplete(self):
         if self.musicprocess:
-            if self.musicprocess.poll() is 0 and self.previouspoll != 0:
+            currentpoll = self.musicprocess.poll()
+            if currentpoll is 0 and time.time() >= (self.truereturntime + 0.02) and self.lastpoll != 0:
+                self.truereturntime = time.time()
                 return True
             else:
                 return False
-            self.previouspoll = self.musicprocess.poll()
+            self.lastpoll = currentpoll
 
 
-    def playfn(self):
+    def __songComplete(self):
+        if self.musicprocess:
+            if self.musicprocess.poll() is 0:
+                return True
+            else:
+                return False
+
+
+    def __play(self):
         if self.player:
-            command = f'{self.player} -nodisp -autoexit -hide_banner "{self.currentSong()}"'
-            self.musicprocess = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, universal_newlines=True)
+            command = [self.player, '-nodisp', '-autoexit', '-hide_banner', self.currentSong()]
+            self.musicprocess = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             self.musicprocess.wait()
 
 
@@ -187,7 +205,7 @@ class Player:
         return self.onstate
 
 
-    def getPlayer(self):
+    def __getPlayer(self):
         if shutil.which("avplay"):
             return "avplay"
         elif shutil.which("ffplay"):
@@ -196,25 +214,17 @@ class Player:
             raise PlayerNotFound
 
 
-    def nonblockingLoop(self, raise_end=True):
-        try:
-            self.thread.start()
-        except EndOfPlaylist:
-            self.end()
-            if raise_end:
-                raise EndOfPlaylist
+    def nonblockingLoop(self):
+        self.thread.start()
 
 
     def blockingLoop(self):
         try:
             while self.isOnline():
-                try:
-                    while self.isPlaying():
-                        self.playfn()
-                        if self.songComplete():
-                            self.next()
-                except EndOfPlaylist:
-                    raise EndOfPlaylist
+                while self.isPlaying():
+                    self.__play()
+                    if self.__songComplete():
+                        self.next()
         except PlayerNotFound:
             raise PlayerNotFound
         except FileNotFoundError:
@@ -245,6 +255,9 @@ def console():
         elif control == 'play' or control == 'p':
             printout(f'Playing song: {player.currentSong()}')
             player.play()
+        elif control == 'pause' or control == 'w':
+            printout(f'Pausing.')
+            player.pause()
         elif control == 'help' or control == 'h' or control == '?':
             printout(HELPER2)
         elif control == 'repeat':
@@ -293,10 +306,11 @@ if __name__ == '__main__':
                         repeat = True
                     if "--no-console" in arg:
                         no_console = True
-                if 's' in arg:
-                    shuffle = True
-                if 'r' in arg:
-                    repeat = True
+                else:
+                    if 's' in arg:
+                        shuffle = True
+                    if 'r' in arg:
+                        repeat = True
             else:
                 filename = arg
     player = Player(filename, shuffle, repeat)
@@ -307,14 +321,7 @@ if __name__ == '__main__':
         thread.start()
     player.nonblockingLoop()
     printout(f'Playing song: {player.currentSong()}')
-    try:
-        while player.isOnline():
-            if player.songComplete():
-                printout(f'Playing song: {player.currentSong()}')
-    except EndOfPlaylist:
-        print('\nEnd of playlist.')
-    except PlayerNotFound:
-        print('\nFFmpeg or avconv not found.')
-    except FileNotFoundError:
-        print('\nNo valid files found.')
+    while player.isOnline():
+        if player.songComplete():
+            printout(f'Playing song: {player.currentSong()}')
     shutdownfn()

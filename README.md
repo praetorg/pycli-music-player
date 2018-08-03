@@ -29,9 +29,8 @@ As a library, simply construct like so for simplest usage:
 
 Where filename is the path to the music file or directory (default is ~/Music)
 
-Three exceptions must be handled for:
+Two exceptions must be handled for:
 
-    EndOfPlaylist
     FileNotFound
     PlayerNotFound
 
