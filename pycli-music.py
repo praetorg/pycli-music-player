@@ -42,7 +42,6 @@ class PlayerNotFound(Exception):
 class Player:
     def __init__(self, filename=None, shuffle=False, repeat=False):
         self.songs = list()
-        self.thread = threading.Thread(target=self.blockingLoop)
         self.counter = 0
         self.repeat = repeat
         self.filename = filename
@@ -50,7 +49,8 @@ class Player:
         self.playstate = True
         self.onstate = True
         self.musicprocess = False
-        self.truereturntime = 0
+        self.songcomplete = False
+        self.pausestate = False
         self.lastpoll = 0
         self.player = self.__getPlayer()
         self.loadPlaylists()
@@ -91,15 +91,22 @@ class Player:
 
 
     def next(self):
-        if self.counter < len(self.songs) - 1:
+        if self.counter < (len(self.songs) - 1):
             self.counter += 1
         elif self.repeat:
             self.songs = self.nextsongs.copy()
-            self.nextsongs = self.loadPlaylist(self.filename)
             self.counter = 0
+            self.nextsongs = self.loadPlaylist(self.filename)
         else:
             self.stop()
             self.counter = 0
+
+
+    def lastSong(self):
+        if self.counter == len(self.songs):
+            return True
+        else:
+            return False
 
 
     def __shuffle(self):
@@ -119,7 +126,7 @@ class Player:
 
 
     def nextSong(self):
-        if self.counter < len(self.songs) - 1:
+        if self.counter < (len(self.songs) - 1):
             return self.songs[self.counter + 1]
         elif self.repeat:
             return self.nextsongs[0]
@@ -165,35 +172,35 @@ class Player:
 
     def play(self):
         self.playstate = True
+        self.pausestate = False
         self.musicprocess.send_signal(signal.SIGCONT)
 
 
     def pause(self):
+        self.pausestate = True
         self.musicprocess.send_signal(signal.SIGSTOP)
+
+
+    def pauseState(self):
+        return self.pausestate
 
 
     def songComplete(self):
         if self.musicprocess:
-            if self.musicprocess.poll() is 0 and time.time() >= (self.truereturntime + 0.03):
-                self.truereturntime = time.time()
-                return True
-            else:
-                return False
-
-
-    def __songComplete(self):
-        if self.musicprocess:
-            if self.musicprocess.poll() is 0:
-                return True
-            else:
-                return False
+            return self.songcomplete
 
 
     def __play(self):
+        self.songcomplete = False
         if self.player:
             command = [self.player, '-nodisp', '-autoexit', '-hide_banner', self.currentSong()]
             self.musicprocess = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             self.musicprocess.wait()
+            if self.musicprocess.poll() is 0:
+                self.songcomplete = True
+                return True
+            return False
+        return False
 
 
     def isPlaying(self):
@@ -213,17 +220,30 @@ class Player:
             raise PlayerNotFound
 
 
-    def nonblockingLoop(self):
+    def songName(self, song):
+        return f'{self.counter} : {os.path.split(song)[-1]}'
+
+
+    def nonblockingLoop(self, function=None, *args, **kwargs):
+        if args or kwargs:
+            self.thread = threading.Thread(target=self.blockingLoop, args=(function, args), kwargs=(kwargs))
+        else:
+            self.thread = threading.Thread(target=self.blockingLoop, args=(function,))
         self.thread.start()
 
 
-    def blockingLoop(self):
+    def blockingLoop(self, function=None, *args, **kwargs):
         try:
             while self.isOnline():
                 while self.isPlaying():
-                    self.__play()
-                    if self.__songComplete():
+                    if function:
+                        if args or kwargs:
+                            function(*args, **kwargs)
+                        else:
+                            function()
+                    if self.__play():
                         self.next()
+                    time.sleep(0.0001)
         except PlayerNotFound:
             raise PlayerNotFound
         except FileNotFoundError:
@@ -237,26 +257,25 @@ def console():
         control = None
         control = input()
         if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
-            printout(f'Playing song: {player.nextSong()}')
             player.stop()
             player.next()
             player.play()
         elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
             player.end()
         elif control == 'back' or control == 'prev' or control == 'e' or control == 'b':
-            printout(f'Playing song: {player.previousSong()}')
             player.stop()
             player.previous()
             player.play()
         elif control == 'stop' or control == 's':
-            printout('Stopping.')
             player.stop()
+            printout('Stopped.')
         elif control == 'play' or control == 'p':
-            printout(f'Playing song: {player.currentSong()}')
             player.play()
+            if not player.pauseState():
+                printoutCurrent()
         elif control == 'pause' or control == 'w':
-            printout(f'Pausing.')
             player.pause()
+            printout('Paused.')
         elif control == 'help' or control == 'h' or control == '?':
             printout(HELPER2)
         elif control == 'repeat':
@@ -273,6 +292,10 @@ def printout(statement):
         print(f'{statement}\npycli-music>>> ', end='')
     else:
         print(f'{statement}')
+
+
+def printoutCurrent():
+    printout(f'Playing song: {player.songName(player.currentSong())}')
 
 
 def shutdownfn():
@@ -318,9 +341,7 @@ if __name__ == '__main__':
         thread = threading.Thread(target=console)
         thread.daemon = True
         thread.start()
-    player.nonblockingLoop()
-    printout(f'Playing song: {player.currentSong()}')
+    player.nonblockingLoop(printoutCurrent)
     while player.isOnline():
-        if player.songComplete():
-            printout(f'Playing song: {player.currentSong()}')
+        pass
     shutdownfn()
