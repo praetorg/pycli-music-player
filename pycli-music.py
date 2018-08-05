@@ -11,30 +11,6 @@ import threading
 import musicformat
 
 
-HELPER = """
-By default, play all music from ~/Music folder, else play supplied directory or file.
->pycli-music 'argument(s)' 'path'
-Arguments:
-    '-r','--repeat' : Repeat all songs indefinitely
-    '-s','--shuffle': Shuffle all songs
-    '--no-console'  : Suppress console
-Short arguments may be combined, such as '-rs'.
-Ctrl-c to exit.
-"""
-
-HELPER2 = """
-pycli-music console commands:
-    'k', 'skip', 'n', 'next': Next song
-    'e', 'prev', 'b', 'back': Previous song
-    'x', 'exit', 'q', 'quit': Exit player
-    's', 'stop'             : Stop song
-    'p', 'play'             : Play song
-    'w', 'pause'            : Pause song
-    'repeat'                : Toggle repeat
-    'shuffle'               : Toggle shuffle
-"""
-
-
 class PlayerNotFound(Exception):
     pass
 
@@ -182,6 +158,13 @@ class Player:
         self.pausestate = False
 
 
+    def playPauseToggle(self):
+        if self.pauseState():
+            self.play()
+        else:
+            self.pause()
+
+
     def pause(self):
         if not self.pauseState():
             self.musicprocess.send_signal(signal.SIGSTOP)
@@ -257,78 +240,104 @@ class Player:
             self.end()
 
 
-def console():
-    while True:
-        control = None
-        control = input(f'\033[{height};0Hpycli-music>>> ')
-        if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
-            player.stop()
-            player.next()
-            player.play()
-        elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
-            player.end()
-        elif control == 'back' or control == 'prev' or control == 'e' or control == 'b':
-            player.stop()
-            player.previous()
-            player.play()
-        elif control == 'stop' or control == 's':
-            player.stop()
-            printout('Stopped.')
-        elif control == 'play' or control == 'p':
-            player.play()
-            if not player.pauseState():
-                printoutCurrent()
-        elif control == 'pause' or control == 'w':
-            player.pause()
-            printout('Paused.')
-        elif control == 'help' or control == 'h' or control == '?':
-            printout(HELPER2)
-        elif control == 'repeat':
-            player.repeatToggle()
-            printout(f'Repeat {"on" if player.repeatState() else "off"}.')
-        elif control == 'shuffle':
-            player.shuffleToggle()
-            printout(f'Shuffle {"on" if player.shuffleState() else "off"}.')
-        elif control.startswith('youtube-dl'):
-            player.youtubeDL(control.split()[-1], printDownload)
-            printout('Downloading...')
-        time.sleep(0.1)
-
-
-def printout(statement):
-    if not no_console:
-        sys.stdout.write(f'\033[s\033[{height - 1};0H\033[K{statement[:width]}\033[u')
-        sys.stdout.flush()
-    else:
-        print(f'{statement}')
-
-
-def printDownload(line):
-    printout(f'youtube-dl>>> {line}')
-
-
-def printoutCurrent():
-    printout(f'Playing song: {player.songName(player.currentSong())}')
-
-
-def shutdownfn():
-    print('Exiting.')
-    if player:
-        player.end()
-    sys.exit(0)
-
-
-def sigintHandler(signal, frame):
-    shutdownfn()
-
-
-def sigwinchHandler(signal, frame):
-    global height
-    global width
-    width, height = shutil.get_terminal_size()
-
-
 if __name__ == '__main__':
+
+
+    HELPER = """
+    By default, play all music from ~/Music folder, else play supplied directory or file.
+    >pycli-music 'argument(s)' 'path'
+    Arguments:
+        '-r','--repeat' : Repeat all songs indefinitely
+        '-s','--shuffle': Shuffle all songs
+        '--no-console'  : Suppress console
+    Short arguments may be combined, such as '-rs'.
+    Ctrl-c to exit.
+    """
+
+    HELPER2 = """
+    pycli-music console commands:
+        'k', 'skip', 'n', 'next': Next song
+        'e', 'prev', 'b', 'back': Previous song
+        'x', 'exit', 'q', 'quit': Exit player
+        's', 'stop'             : Stop song
+        'p', 'play'             : Play song
+        'w', 'pause'            : Pause song
+        'repeat'                : Toggle repeat
+        'shuffle'               : Toggle shuffle
+    """
+
+    
+    def console():
+        while True:
+            control = None
+            control = input(f'\033[{height};0Hpycli-music>>> ')
+            if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
+                player.stop()
+                player.next()
+                player.play()
+            elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
+                player.end()
+            elif control == 'back' or control == 'prev' or control == 'e' or control == 'b':
+                player.stop()
+                player.previous()
+                player.play()
+            elif control == 'stop' or control == 's':
+                player.stop()
+                printout('Stopped.')
+            elif control == 'play' or control == 'p':
+                player.play()
+                if not player.pauseState():
+                    printoutCurrent()
+            elif control == 'pause' or control == 'w':
+                player.pause()
+                printout('Paused.')
+            elif control == 'help' or control == 'h' or control == '?':
+                printout(HELPER2)
+            elif control == 'repeat':
+                player.repeatToggle()
+                printout(f'Repeat {"on" if player.repeatState() else "off"}.')
+            elif control == 'shuffle':
+                player.shuffleToggle()
+                printout(f'Shuffle {"on" if player.shuffleState() else "off"}.')
+            elif control.startswith('youtube-dl'):
+                player.youtubeDL(control.split()[-1], printDownload)
+                printout('Downloading...')
+            time.sleep(0.1)
+
+
+    def printout(statement):
+        if not no_console:
+            sys.stdout.write(f'\033[s\033[{height - 1};0H\033[K{statement[:width]}\033[u')
+            sys.stdout.flush()
+        else:
+            print(f'{statement}')
+
+
+    def printDownload(line):
+        printout(f'youtube-dl>>> {line}')
+
+
+    def printoutCurrent():
+        printout(f'Playing song: {player.songName(player.currentSong())}')
+
+
+    def shutdownfn():
+        print('Exiting.')
+        if player:
+            player.end()
+        sys.exit(0)
+
+
+    def sigintHandler(signal, frame):
+        shutdownfn()
+
+
+    def sigwinchHandler(signal, frame):
+        global height
+        global width
+        width, height = shutil.get_terminal_size()
+
+
     signal.signal(signal.SIGINT, sigintHandler)
     signal.signal(signal.SIGWINCH, sigwinchHandler)
     width, height = shutil.get_terminal_size()
