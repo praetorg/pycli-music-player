@@ -297,8 +297,8 @@ def console():
 
 def printout(statement):
     if not no_console:
-        print(f'\033[s\033[{height - 1};0H', end='\033[K')
-        print(statement[:width], end='\033[u')
+        sys.stdout.write(f'\033[s\033[{height - 1};0H\033[K{statement[:width]}\033[u')
+        sys.stdout.flush()
     else:
         print(f'{statement}')
 
@@ -312,7 +312,7 @@ def printoutCurrent():
 
 
 def shutdownfn():
-    print('\nExiting.')
+    print('Exiting.')
     if player:
         player.end()
     sys.exit(0)
