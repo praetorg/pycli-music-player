@@ -51,7 +51,6 @@ class Player:
         self.musicprocess = False
         self.songcomplete = False
         self.pausestate = False
-        self.lastpoll = 0
         self.player = self.__getPlayer()
         self.loadPlaylists()
         self.__shuffle()
@@ -172,7 +171,7 @@ class Player:
     def stop(self):
         self.playstate = False
         if self.musicprocess:
-            if self.musicprocess.poll() is None:
+            if not self.songComplete():
                 self.musicprocess.terminate()
 
 
@@ -207,7 +206,6 @@ class Player:
             if self.musicprocess.poll() is 0:
                 self.songcomplete = True
                 return True
-            return False
         return False
 
 
@@ -229,7 +227,7 @@ class Player:
 
 
     def songName(self, song):
-        return f'{self.counter} : {os.path.split(song)[-1]}'
+        return f'{self.counter}: {os.path.split(song)[-1]}'
 
 
     def nonblockingLoop(self, function=None, *args, **kwargs):
@@ -299,7 +297,7 @@ def console():
 
 def printout(statement):
     if not no_console:
-        print(f'\033[s\033[{height - 1};0H', end='')
+        print(f'\033[s\033[{height - 1};0H', end='\033[K')
         print(statement[:width], end='\033[u')
     else:
         print(f'{statement}')
