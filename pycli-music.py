@@ -90,6 +90,11 @@ class Player:
         self.nextsongs = self.loadPlaylist(self.filename)
 
 
+    def sanityCheck(self):
+        if not os.path.exists(self.currentSong()):
+            self.songs[self.counter].pop()
+
+
     def next(self):
         if self.counter < (len(self.songs) - 1):
             self.counter += 1
@@ -100,6 +105,7 @@ class Player:
         else:
             self.stop()
             self.counter = 0
+        self.sanityCheck()
 
 
     def lastSong(self):
@@ -172,13 +178,15 @@ class Player:
 
     def play(self):
         self.playstate = True
+        if self.pauseState():
+            self.musicprocess.send_signal(signal.SIGCONT)
         self.pausestate = False
-        self.musicprocess.send_signal(signal.SIGCONT)
 
 
     def pause(self):
+        if not self.pauseState():
+            self.musicprocess.send_signal(signal.SIGSTOP)
         self.pausestate = True
-        self.musicprocess.send_signal(signal.SIGSTOP)
 
 
     def pauseState(self):
@@ -243,7 +251,6 @@ class Player:
                             function()
                     if self.__play():
                         self.next()
-                    time.sleep(0.0001)
         except PlayerNotFound:
             raise PlayerNotFound
         except FileNotFoundError:
@@ -255,7 +262,7 @@ class Player:
 def console():
     while True:
         control = None
-        control = input()
+        control = input(f'\033[{height};0Hpycli-music>>> ')
         if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
             player.stop()
             player.next()
@@ -284,14 +291,22 @@ def console():
         elif control == 'shuffle':
             player.shuffleToggle()
             printout(f'Shuffle {"on" if player.shuffleState() else "off"}.')
+        elif control.startswith('youtube-dl'):
+            player.youtubeDL(control.split()[-1], printDownload)
+            printout('Downloading...')
+        time.sleep(0.1)
 
 
 def printout(statement):
     if not no_console:
-        print("\033[K\033[F\033[K", end='')
-        print(f'{statement}\npycli-music>>> ', end='')
+        print(f'\033[s\033[{height - 1};0H', end='')
+        print(statement[:width], end='\033[u')
     else:
         print(f'{statement}')
+
+
+def printDownload(line):
+    printout(f'youtube-dl>>> {line}')
 
 
 def printoutCurrent():
@@ -309,8 +324,16 @@ def sigintHandler(signal, frame):
     shutdownfn()
 
 
+def sigwinchHandler(signal, frame):
+    global height
+    global width
+    width, height = shutil.get_terminal_size()
+
+
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigintHandler)
+    signal.signal(signal.SIGWINCH, sigwinchHandler)
+    width, height = shutil.get_terminal_size()
     no_console = False
     shuffle = False
     repeat = False
@@ -340,8 +363,9 @@ if __name__ == '__main__':
     if not no_console:
         thread = threading.Thread(target=console)
         thread.daemon = True
-        thread.start()
     player.nonblockingLoop(printoutCurrent)
+    time.sleep(0.1)
+    thread.start()
     while player.isOnline():
         pass
     shutdownfn()
