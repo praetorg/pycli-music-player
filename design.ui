@@ -38,6 +38,13 @@
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QToolButton 
+{
+	border: none;
+	outline: none;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -182,6 +189,9 @@
           </item>
           <item>
            <widget class="QToolButton" name="nextButton">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>Next</string>
             </property>
@@ -235,6 +245,11 @@
             <property name="text">
              <string>Shuffle</string>
             </property>
+            <property name="icon">
+             <iconset resource="res.qrc">
+              <normaloff>:/res/res/shuffle.png</normaloff>
+              <normalon>:/res/res/shuffleoff.png</normalon>:/res/res/shuffle.png</iconset>
+            </property>
             <property name="checked">
              <bool>true</bool>
             </property>
@@ -244,6 +259,11 @@
            <widget class="QCheckBox" name="repeatBox">
             <property name="text">
              <string>Repeat</string>
+            </property>
+            <property name="icon">
+             <iconset resource="res.qrc">
+              <normaloff>:/res/res/repeat.png</normaloff>
+              <normalon>:/res/res/repeatoff.png</normalon>:/res/res/repeat.png</iconset>
             </property>
             <property name="checked">
              <bool>true</bool>

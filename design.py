@@ -37,6 +37,11 @@ class Ui_MainWindow(object):
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/notesmain.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
+        MainWindow.setStyleSheet(_fromUtf8("QToolButton \n"
+"{\n"
+"    border: none;\n"
+"    outline: none;\n"
+"}"))
         self.centralwidget = QtGui.QWidget(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -101,6 +106,7 @@ class Ui_MainWindow(object):
         self.stopButton.setObjectName(_fromUtf8("stopButton"))
         self.horizontalLayout_2.addWidget(self.stopButton)
         self.nextButton = QtGui.QToolButton(self.centralwidget)
+        self.nextButton.setStyleSheet(_fromUtf8(""))
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/next.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.nextButton.setIcon(icon4)
@@ -116,10 +122,18 @@ class Ui_MainWindow(object):
         spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem2)
         self.shuffleBox = QtGui.QCheckBox(self.centralwidget)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/shuffle.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/shuffleoff.png")), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.shuffleBox.setIcon(icon5)
         self.shuffleBox.setChecked(True)
         self.shuffleBox.setObjectName(_fromUtf8("shuffleBox"))
         self.horizontalLayout_3.addWidget(self.shuffleBox, 0, QtCore.Qt.AlignHCenter)
         self.repeatBox = QtGui.QCheckBox(self.centralwidget)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/repeat.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon6.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/repeatoff.png")), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.repeatBox.setIcon(icon6)
         self.repeatBox.setChecked(True)
         self.repeatBox.setObjectName(_fromUtf8("repeatBox"))
         self.horizontalLayout_3.addWidget(self.repeatBox, 0, QtCore.Qt.AlignHCenter)
