@@ -122,7 +122,7 @@
             <property name="iconSize">
              <size>
               <width>48</width>
-              <height>48</height>
+              <height>30</height>
              </size>
             </property>
            </widget>
@@ -146,13 +146,20 @@
             </property>
             <property name="icon">
              <iconset resource="res.qrc">
-              <normaloff>:/res/res/play.png</normaloff>:/res/res/play.png</iconset>
+              <normaloff>:/res/res/pause.png</normaloff>
+              <normalon>:/res/res/play.png</normalon>:/res/res/pause.png</iconset>
             </property>
             <property name="iconSize">
              <size>
               <width>48</width>
               <height>48</height>
              </size>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -185,7 +192,7 @@
             <property name="iconSize">
              <size>
               <width>48</width>
-              <height>48</height>
+              <height>30</height>
              </size>
             </property>
            </widget>

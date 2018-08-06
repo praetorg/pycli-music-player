@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="res">
+    <file>res/pause.png</file>
     <file>res/notesmain.png</file>
     <file>res/note.png</file>
     <file>res/previous.png</file>

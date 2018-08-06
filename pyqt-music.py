@@ -31,6 +31,7 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
     def stop(self):
         self.player.stop()
         self.updatePlayLabel("Stopped")
+        self.playButton.setChecked(True)
 
 
     def playPauseToggle(self):
