@@ -1,9 +1,7 @@
 <RCC>
   <qresource prefix="res">
     <file>res/repeat.png</file>
-    <file>res/repeatoff.png</file>
     <file>res/shuffle.png</file>
-    <file>res/shuffleoff.png</file>
     <file>res/pause.png</file>
     <file>res/notesmain.png</file>
     <file>res/note.png</file>

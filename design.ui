@@ -248,7 +248,7 @@
             <property name="icon">
              <iconset resource="res.qrc">
               <normaloff>:/res/res/shuffle.png</normaloff>
-              <normalon>:/res/res/shuffleoff.png</normalon>:/res/res/shuffle.png</iconset>
+              <normalon>:/res/res/shuffle.png</normalon>:/res/res/shuffle.png</iconset>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -263,7 +263,7 @@
             <property name="icon">
              <iconset resource="res.qrc">
               <normaloff>:/res/res/repeat.png</normaloff>
-              <normalon>:/res/res/repeatoff.png</normalon>:/res/res/repeat.png</iconset>
+              <normalon>:/res/res/repeat.png</normalon>:/res/res/repeat.png</iconset>
             </property>
             <property name="checked">
              <bool>true</bool>
