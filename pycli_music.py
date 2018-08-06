@@ -27,6 +27,8 @@ class Player:
         self.musicprocess = False
         self.songcomplete = False
         self.pausestate = False
+        self.youtubedl = self.__getYoutubeDL()
+        self.youtubedlcomplete = True
         self.player = self.__getPlayer()
         self.loadPlaylists()
         self.__shuffle()
@@ -159,7 +161,7 @@ class Player:
 
 
     def playPauseToggle(self):
-        if self.pauseState():
+        if self.pauseState() or not self.isPlaying():
             self.play()
         else:
             self.pause()
@@ -209,8 +211,38 @@ class Player:
             raise PlayerNotFound
 
 
+    def __getYoutubeDL(self):
+        if shutil.which("youtube-dl"):
+            return True
+        else:
+            return False
+
+
     def songName(self, song):
         return f'{self.counter}: {os.path.split(song)[-1]}'
+
+
+    def youtubeDL(self, link, function=None):
+        if self.youtubedl and self.youtubedlcomplete == True and link:
+            if function:
+                youtubedlthread = threading.Thread(target=self.__youtubeDL, args=(link, function))
+            else:
+                youtubedlthread = threading.Thread(target=self.__youtubeDL, args=(link,))
+            youtubedlthread.start()
+
+
+    def __youtubeDL(self, link, function=None):
+        self.youtubedlcomplete = False
+        lastline = None
+        command = ['youtube-dl', '-ix', '-o', f"{os.path.join(Path.home(), 'Music')}/%(uploader)s/%(title)s.%(ext)s", f'{link}']
+        self.youtubedlprocess = subprocess.Popen(command, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if function:
+            for line in iter(self.youtubedlprocess.stdout.readline, b''):
+                if line != lastline and line != '':
+                    newline = line.replace("\n", "").decode("utf-8")
+                    function(f'{newline}')
+                lastline = line
+        self.youtubedlcomplete = True
 
 
     def nonblockingLoop(self, function=None, *args, **kwargs):

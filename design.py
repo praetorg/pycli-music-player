@@ -1,0 +1,153 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'design.ui'
+#
+# Created by: PyQt4 UI code generator 4.12.1
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt4 import QtCore, QtGui
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        MainWindow.resize(656, 389)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+        MainWindow.setSizePolicy(sizePolicy)
+        MainWindow.setMinimumSize(QtCore.QSize(320, 288))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/notesmain.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
+        MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.centralwidget = QtGui.QWidget(MainWindow)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
+        self.centralwidget.setSizePolicy(sizePolicy)
+        self.centralwidget.setMinimumSize(QtCore.QSize(320, 240))
+        self.centralwidget.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.playingLabel = QtGui.QLabel(self.centralwidget)
+        self.playingLabel.setObjectName(_fromUtf8("playingLabel"))
+        self.verticalLayout.addWidget(self.playingLabel, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.songLabel = QtGui.QLabel(self.centralwidget)
+        self.songLabel.setObjectName(_fromUtf8("songLabel"))
+        self.verticalLayout.addWidget(self.songLabel, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.previousButton = QtGui.QToolButton(self.centralwidget)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/previous.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.previousButton.setIcon(icon1)
+        self.previousButton.setIconSize(QtCore.QSize(48, 48))
+        self.previousButton.setObjectName(_fromUtf8("previousButton"))
+        self.horizontalLayout_2.addWidget(self.previousButton)
+        self.playButton = QtGui.QToolButton(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.playButton.sizePolicy().hasHeightForWidth())
+        self.playButton.setSizePolicy(sizePolicy)
+        self.playButton.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/play.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.playButton.setIcon(icon2)
+        self.playButton.setIconSize(QtCore.QSize(48, 48))
+        self.playButton.setObjectName(_fromUtf8("playButton"))
+        self.horizontalLayout_2.addWidget(self.playButton)
+        self.stopButton = QtGui.QToolButton(self.centralwidget)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/stop.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.stopButton.setIcon(icon3)
+        self.stopButton.setIconSize(QtCore.QSize(48, 48))
+        self.stopButton.setObjectName(_fromUtf8("stopButton"))
+        self.horizontalLayout_2.addWidget(self.stopButton)
+        self.nextButton = QtGui.QToolButton(self.centralwidget)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/res/res/next.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.nextButton.setIcon(icon4)
+        self.nextButton.setIconSize(QtCore.QSize(48, 48))
+        self.nextButton.setObjectName(_fromUtf8("nextButton"))
+        self.horizontalLayout_2.addWidget(self.nextButton)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem1)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem2)
+        self.shuffleBox = QtGui.QCheckBox(self.centralwidget)
+        self.shuffleBox.setChecked(True)
+        self.shuffleBox.setObjectName(_fromUtf8("shuffleBox"))
+        self.horizontalLayout_3.addWidget(self.shuffleBox, 0, QtCore.Qt.AlignHCenter)
+        self.repeatBox = QtGui.QCheckBox(self.centralwidget)
+        self.repeatBox.setChecked(True)
+        self.repeatBox.setObjectName(_fromUtf8("repeatBox"))
+        self.horizontalLayout_3.addWidget(self.repeatBox, 0, QtCore.Qt.AlignHCenter)
+        spacerItem3 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem3)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout.addLayout(self.verticalLayout)
+        self.verticalLayout_2.addLayout(self.horizontalLayout)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 656, 27))
+        self.menubar.setObjectName(_fromUtf8("menubar"))
+        self.menuFile = QtGui.QMenu(self.menubar)
+        self.menuFile.setObjectName(_fromUtf8("menuFile"))
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtGui.QStatusBar(MainWindow)
+        self.statusbar.setObjectName(_fromUtf8("statusbar"))
+        MainWindow.setStatusBar(self.statusbar)
+        self.actionExit = QtGui.QAction(MainWindow)
+        self.actionExit.setObjectName(_fromUtf8("actionExit"))
+        self.menuFile.addAction(self.actionExit)
+        self.menubar.addAction(self.menuFile.menuAction())
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(_translate("MainWindow", "pyqt-music", None))
+        self.playingLabel.setText(_translate("MainWindow", "Playing now", None))
+        self.songLabel.setText(_translate("MainWindow", "SongLabel", None))
+        self.previousButton.setText(_translate("MainWindow", "Previous", None))
+        self.playButton.setText(_translate("MainWindow", "Play", None))
+        self.stopButton.setText(_translate("MainWindow", "Stop", None))
+        self.nextButton.setText(_translate("MainWindow", "Next", None))
+        self.shuffleBox.setText(_translate("MainWindow", "Shuffle", None))
+        self.repeatBox.setText(_translate("MainWindow", "Repeat", None))
+        self.menuFile.setTitle(_translate("MainWindow", "File", None))
+        self.actionExit.setText(_translate("MainWindow", "Exit", None))
+
+import res_rc
