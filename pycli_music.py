@@ -150,6 +150,8 @@ class Player:
         self.playstate = False
         if self.musicprocess:
             if not self.songComplete():
+                if self.pauseState():
+                    self.musicprocess.send_signal(signal.SIGCONT)
                 self.musicprocess.terminate()
 
 

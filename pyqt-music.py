@@ -11,25 +11,41 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.setupUi(self)
         self.player = pycli_music.Player(None, True, True)
         self.player.nonblockingLoop(self.updateSongLabel)
-        self.playButton.clicked.connect(self.player.playPauseToggle)
-        self.stopButton.clicked.connect(self.player.stop)
+        self.playButton.clicked.connect(self.playPauseToggle)
+        self.stopButton.clicked.connect(self.stop)
         self.nextButton.clicked.connect(self.next)
         self.previousButton.clicked.connect(self.previous)
         self.actionExit.triggered.connect(self.shutdownfn)
         self.shuffleBox.stateChanged.connect(self.player.shuffleToggle)
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
+        self.updatePlayLabel("Playing")
 
 
     def next(self):
         self.player.stop()
         self.player.next()
         self.player.play()
+        self.updatePlayLabel("Playing")
+
+
+    def stop(self):
+        self.player.stop()
+        self.updatePlayLabel("Stopped")
+
+
+    def playPauseToggle(self):
+        self.player.playPauseToggle()
+        if self.player.pauseState():
+            self.updatePlayLabel("Paused")
+        else:
+            self.updatePlayLabel("Playing")
 
 
     def previous(self):
         self.player.stop()
         self.player.previous()
         self.player.play()
+        self.updatePlayLabel("Playing")
 
 
     def shutdownfn(self):
@@ -39,6 +55,11 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
     def updateSongLabel(self):
         self.songLabel.setText(self.player.songName(self.player.currentSong()))
+
+
+    def updatePlayLabel(self, string):
+        self.playingLabel.setText(string)
+        self.playingLabel.setFont(PyQt4.QtGui.QFont("", weight=PyQt4.QtGui.QFont.Bold))
 
 
 if __name__ == '__main__':
