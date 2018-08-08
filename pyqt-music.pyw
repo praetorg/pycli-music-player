@@ -16,15 +16,31 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.nextButton.clicked.connect(self.next)
         self.previousButton.clicked.connect(self.previous)
         self.actionExit.triggered.connect(self.shutdownfn)
-        self.shuffleBox.stateChanged.connect(self.player.shuffleToggle)
+        self.shuffleBox.stateChanged.connect(self.shuffle)
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
+        self.playlistWidget.itemDoubleClicked.connect(self.playlistItem)
         self.updatePlayLabel("Playing")
 
 
+    def playlistItem(self):
+        if self.player.skipTo(self.playlistWidget.currentRow()):
+            pass
+        else:
+            self.updatePlaylistWidget()
+
+
+    def updatePlaylistWidget(self):
+        self.playlistWidget.clear()
+        self.playlistWidget.addItems(self.player.getPlaylist())
+
+
+    def shuffle(self):
+        self.player.shuffleToggle()
+        self.updatePlaylistWidget()
+
+
     def next(self):
-        self.player.stop()
-        self.player.next()
-        self.player.play()
+        self.player.skipNext()
         self.updatePlayLabel("Playing")
 
 
@@ -43,9 +59,7 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
 
     def previous(self):
-        self.player.stop()
-        self.player.previous()
-        self.player.play()
+        self.player.skipPrevious()
         self.updatePlayLabel("Playing")
 
 
@@ -55,7 +69,8 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
 
     def updateSongLabel(self):
-        self.songLabel.setText(self.player.songName(self.player.currentSong()))
+        self.songLabel.setText(self.player.currentSongName())
+        self.updatePlaylistWidget()
 
 
     def updatePlayLabel(self, string):

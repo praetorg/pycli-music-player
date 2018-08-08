@@ -67,9 +67,19 @@ class Player:
         self.nextsongs = self.loadPlaylist(self.filename)
 
 
-    def sanityCheck(self):
-        if not os.path.exists(self.currentSong()):
-            self.songs[self.counter].pop()
+    def getPlaylist(self):
+        songs = list()
+        for index, song in enumerate(self.songs):
+            songs.append(f'{index}: {os.path.split(song)[-1]}')
+        return songs
+
+
+    def sanityCheck(self, index):
+        if not os.path.exists(self.songs[index]):
+            self.songs[index].pop()
+            return False
+        else:
+            return True
 
 
     def next(self):
@@ -82,7 +92,30 @@ class Player:
         else:
             self.stop()
             self.counter = 0
-        self.sanityCheck()
+        self.sanityCheck(self.counter)
+
+
+    def skipNext(self):
+        self.stop()
+        self.next()
+        self.play()
+
+
+    def skipPrevious(self):
+        self.stop()
+        self.previous()
+        self.play()
+
+
+    def skipTo(self, index):
+        if index <= len(self.songs) and self.sanityCheck(index):
+            self.counter = index
+            self.stop()
+            self.play()
+            return True
+        else:
+            return False
+
 
 
     def lastSong(self):
@@ -220,8 +253,8 @@ class Player:
             return False
 
 
-    def songName(self, song):
-        return f'{self.counter}: {os.path.split(song)[-1]}'
+    def currentSongName(self):
+        return f'{self.counter}: {os.path.split(self.currentSong())[-1]}'
 
 
     def youtubeDL(self, link, function=None):
@@ -306,15 +339,11 @@ if __name__ == '__main__':
             control = None
             control = input(f'\033[{height};0Hpycli-music>>> ')
             if control == 'skip' or control == 'next' or control == 'k' or control == 'n':
-                player.stop()
-                player.next()
-                player.play()
+                player.skipNext()
             elif control == 'exit' or control == 'quit' or control == 'x' or control == 'q':
                 player.end()
             elif control == 'back' or control == 'prev' or control == 'e' or control == 'b':
-                player.stop()
-                player.previous()
-                player.play()
+                player.skipPrevious()
             elif control == 'stop' or control == 's':
                 player.stop()
                 printout('Stopped.')
@@ -352,7 +381,7 @@ if __name__ == '__main__':
 
 
     def printoutCurrent():
-        printout(f'Playing song: {player.songName(player.currentSong())}')
+        printout(f'Playing song: {player.currentSongName()}')
 
 
     def shutdownfn():

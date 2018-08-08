@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
+    <width>829</width>
     <height>288</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>320</width>
+    <width>640</width>
     <height>288</height>
    </size>
   </property>
@@ -89,6 +89,18 @@
           </item>
           <item alignment="Qt::AlignHCenter|Qt::AlignTop">
            <widget class="QLabel" name="songLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>320</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
              <string>SongLabel</string>
             </property>
@@ -287,6 +299,9 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QListWidget" name="playlistWidget"/>
+      </item>
      </layout>
     </item>
    </layout>
@@ -296,7 +311,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>320</width>
+     <width>829</width>
      <height>27</height>
     </rect>
    </property>
