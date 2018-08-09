@@ -125,6 +125,13 @@ class Player:
             return False
 
 
+    def firstSong(self):
+        if self.counter == 0:
+            return True
+        else:
+            return False
+
+
     def __shuffle(self):
         self.loadPlaylists()
         if self.shuffle:

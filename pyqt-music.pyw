@@ -10,7 +10,7 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.player = pycli_music.Player(None, True, True)
-        self.player.nonblockingLoop(self.updateSongLabel)
+        self.player.nonblockingLoop()
         self.playButton.clicked.connect(self.playPauseToggle)
         self.stopButton.clicked.connect(self.stop)
         self.nextButton.clicked.connect(self.next)
@@ -19,6 +19,9 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.shuffleBox.stateChanged.connect(self.shuffle)
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
         self.playlistWidget.itemDoubleClicked.connect(self.playlistItem)
+        self.songlabeltimer = PyQt4.QtCore.QTimer()
+        self.songlabeltimer.timeout.connect(self.updateSongLabel)
+        self.songlabeltimer.start(1000)
         self.updatePlayLabel("Playing")
 
 
@@ -70,7 +73,8 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
     def updateSongLabel(self):
         self.songLabel.setText(self.player.currentSongName())
-        self.updatePlaylistWidget()
+        if self.player.firstSong():
+            self.updatePlaylistWidget()
 
 
     def updatePlayLabel(self, string):
