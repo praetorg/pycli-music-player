@@ -7,7 +7,7 @@ import pycli_music
 
 class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
-        super(self.__class__, self).__init__()
+        super(PyQt4.QtGui.QMainWindow, self).__init__()
         self.setupUi(self)
         self.player = pycli_music.Player(None, True, True)
         self.player.nonblockingLoop()
