@@ -2,6 +2,7 @@
 import sys
 import PyQt4
 import design
+import time
 import pycli_music
 
 
@@ -17,12 +18,17 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.previousButton.clicked.connect(self.previous)
         self.actionExit.triggered.connect(self.shutdownfn)
         self.shuffleBox.stateChanged.connect(self.shuffle)
+        self.volumeSlider.sliderReleased.connect(self.setVolume)
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
         self.playlistWidget.itemDoubleClicked.connect(self.playlistItem)
         self.songlabeltimer = PyQt4.QtCore.QTimer()
         self.songlabeltimer.timeout.connect(self.updateSongLabel)
         self.songlabeltimer.start(1000)
         self.updatePlayLabel("Playing")
+
+
+    def setVolume(self):
+        self.player.setVolume(self.volumeSlider.value())
 
 
     def playlistItem(self):
@@ -73,6 +79,10 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
     def updateSongLabel(self):
         self.songLabel.setText(self.player.currentSongName())
+        songstep = time.strftime("%H:%M:%S", time.gmtime(self.player.currentSongStep()))
+        duration = time.strftime("%H:%M:%S", time.gmtime(round(self.player.currentSongDuration())))
+        self.timeLabel.setText(f'{songstep}/{duration}'.replace("00:", ""))
+        self.progressBar.setValue((self.player.currentSongStep()/round(self.player.currentSongDuration()))*100)
         if self.player.firstSong():
             self.updatePlaylistWidget()
 

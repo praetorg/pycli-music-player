@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 import sys
 import time
+import json
 import signal
 import shutil
 import random
@@ -29,7 +30,11 @@ class Player:
         self.pausestate = False
         self.youtubedl = self.__getYoutubeDL()
         self.youtubedlcomplete = True
+        self.stepper = 0
+        self.volume = 100
+        self.currentsongduration = None
         self.player = self.__getPlayer()
+        self.prober = self.__getProber()
         self.loadPlaylists()
         self.__shuffle()
 
@@ -80,6 +85,30 @@ class Player:
             return False
         else:
             return True
+
+
+    def setVolume(self, level):
+        self.volume = level
+        self.pause()
+        self.play()
+
+
+    def volumeMax(self):
+        self.setVolume(100)
+
+
+    def volumeMute(self):
+        self.setVolume(0)
+
+
+    def volumeUp(self):
+        if self.volume <= 90:
+            self.setVolume(self.volume + 10)
+
+
+    def volumeDown(self):
+        if self.volume >= 10:
+            self.setVolume(self.volume - 10)
 
 
     def next(self):
@@ -188,17 +217,15 @@ class Player:
 
     def stop(self):
         self.playstate = False
+        self.stepper = 0
+        time.sleep(0.2)
         if self.musicprocess:
             if not self.songComplete():
-                if self.pauseState():
-                    self.musicprocess.send_signal(signal.SIGCONT)
                 self.musicprocess.terminate()
 
 
     def play(self):
         self.playstate = True
-        if self.pauseState():
-            self.musicprocess.send_signal(signal.SIGCONT)
         self.pausestate = False
 
 
@@ -210,9 +237,12 @@ class Player:
 
 
     def pause(self):
-        if not self.pauseState():
-            self.musicprocess.send_signal(signal.SIGSTOP)
+        self.playstate = False
         self.pausestate = True
+        time.sleep(0.2)
+        if self.musicprocess:
+            if not self.songComplete():
+                self.musicprocess.terminate()
 
 
     def pauseState(self):
@@ -220,19 +250,40 @@ class Player:
 
 
     def songComplete(self):
-        if self.musicprocess:
-            return self.songcomplete
+        return self.songcomplete
+
+
+    def currentSongDuration(self):
+        if not self.currentsongduration:
+            probecommand = [self.prober, '-v', 'quiet', '-of', 'json', '-hide_banner', '-show_entries', 'format=duration', '-i', self.currentSong()]
+            self.currentsongduration = float((json.loads(subprocess.check_output(probecommand)))['format']['duration'])
+            return self.currentsongduration
+        else:
+            return self.currentsongduration
+        
+
+    def currentSongStep(self):
+        return self.stepper
 
 
     def __play(self):
         self.songcomplete = False
-        if self.player:
-            command = [self.player, '-nodisp', '-autoexit', '-hide_banner', self.currentSong()]
+        if self.player and self.prober:
+            duration = self.currentSongDuration()
+            timer = time.time()
+            stepper = 0
+            command = [self.player, '-nodisp', '-autoexit', '-hide_banner', '-ss', str(self.stepper), '-volume', str(self.volume), self.currentSong()]
             self.musicprocess = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            self.musicprocess.wait()
-            if self.musicprocess.poll() is 0:
+            while self.stepper < duration and self.isPlaying():
+                if time.time() >= (timer + stepper):
+                    stepper += 1
+                    self.stepper += 1
+            self.currentsongduration = None
+            if self.stepper >= duration:
+                self.stepper = 0
                 self.songcomplete = True
                 return True
+            return False
         return False
 
 
@@ -249,6 +300,15 @@ class Player:
             return "avplay"
         elif shutil.which("ffplay"):
             return "ffplay"
+        else:
+            raise PlayerNotFound
+
+
+    def __getProber(self):
+        if shutil.which("avprobe"):
+            return "avprobe"
+        elif shutil.which("ffplay"):
+            return "ffprobe"
         else:
             raise PlayerNotFound
 
@@ -372,6 +432,14 @@ if __name__ == '__main__':
             elif control.startswith('youtube-dl'):
                 player.youtubeDL(control.split()[-1], printDownload)
                 printout('Downloading...')
+            elif control == 'up' or control == 'u' or control == '+':
+                player.volumeUp()
+            elif control == 'down' or control == 'd' or control == '-':
+                player.volumeDown()
+            elif control == 'max' or control == 'M':
+                player.volumeMax()
+            elif control == 'mute' or control == 'm':
+                player.volumeMute()
             time.sleep(0.1)
 
 
