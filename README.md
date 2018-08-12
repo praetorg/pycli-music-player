@@ -17,6 +17,10 @@ Short arguments may be combined, such as `-rs`.
     'k', 'skip', 'n', 'next': Next song
     'e', 'prev', 'b', 'back': Previous song
     'x', 'exit', 'q', 'quit': Exit player
+    'u', '+', 'up'          : Volume up
+    'd', '-', 'down'        : Volume down
+    'M', 'max'              : Volume max
+    'm', 'mute'             : Volume mute
     's', 'stop'             : Stop song
     'p', 'play'             : Play song
     'w', 'pause'            : Pause song
@@ -33,9 +37,11 @@ As a library, simply construct like so for simplest usage:
 Where `filename` is the path to the music file or directory (default is ~/Music)
 and `function` is a function to pass through to the loop to be executed every song change(including immediately).
 
-Two exceptions must be handled for:
+Three exceptions must be handled for:
 
     FileNotFound
     PlayerNotFound
+    ProberNotFound
 
-Where PlayerNotFound is the inability to find either FFmpeg or avconv
+Where PlayerNotFound is the inability to find either FFplay or avplay, and ProberNotFound is the inability to find
+either FFprobe or avprobe.

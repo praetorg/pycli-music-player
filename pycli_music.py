@@ -16,6 +16,10 @@ class PlayerNotFound(Exception):
     pass
 
 
+class ProberNotFound(Exception):
+    pass
+
+
 class Player:
     def __init__(self, filename=None, shuffle=False, repeat=False):
         self.songs = list()
@@ -219,9 +223,8 @@ class Player:
         self.playstate = False
         self.stepper = 0
         time.sleep(0.2)
-        if self.musicprocess:
-            if not self.songComplete():
-                self.musicprocess.terminate()
+        if self.musicprocess and not self.songComplete():
+            self.musicprocess.terminate()
 
 
     def play(self):
@@ -240,9 +243,8 @@ class Player:
         self.playstate = False
         self.pausestate = True
         time.sleep(0.2)
-        if self.musicprocess:
-            if not self.songComplete():
-                self.musicprocess.terminate()
+        if self.musicprocess and not self.songComplete():
+            self.musicprocess.terminate()
 
 
     def pauseState(self):
@@ -310,7 +312,7 @@ class Player:
         elif shutil.which("ffplay"):
             return "ffprobe"
         else:
-            raise PlayerNotFound
+            raise ProberNotFound
 
 
     def __getYoutubeDL(self):
@@ -393,6 +395,10 @@ if __name__ == '__main__':
         'k', 'skip', 'n', 'next': Next song
         'e', 'prev', 'b', 'back': Previous song
         'x', 'exit', 'q', 'quit': Exit player
+        'u', '+', 'up'          : Volume up
+        'd', '-', 'down'        : Volume down
+        'M', 'max'              : Volume max
+        'm', 'mute'             : Volume mute
         's', 'stop'             : Stop song
         'p', 'play'             : Play song
         'w', 'pause'            : Pause song
