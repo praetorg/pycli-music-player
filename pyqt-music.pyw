@@ -19,12 +19,26 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.actionExit.triggered.connect(self.shutdownfn)
         self.shuffleBox.stateChanged.connect(self.shuffle)
         self.volumeSlider.sliderReleased.connect(self.setVolume)
+        self.maxButton.clicked.connect(self.maxVolume)
+        self.muteButton.clicked.connect(self.muteVolume)
+        self.forwardButton.clicked.connect(self.player.seekForward)
+        self.backButton.clicked.connect(self.player.seekBack)
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
         self.playlistWidget.itemDoubleClicked.connect(self.playlistItem)
         self.songlabeltimer = PyQt4.QtCore.QTimer()
         self.songlabeltimer.timeout.connect(self.updateSongLabel)
-        self.songlabeltimer.start(1000)
+        self.songlabeltimer.start(500)
         self.updatePlayLabel("Playing")
+
+
+    def maxVolume(self):
+        self.player.volumeMax()
+        self.volumeSlider.setValue(100)
+
+
+    def muteVolume(self):
+        self.player.volumeMute()
+        self.volumeSlider.setValue(0)
 
 
     def setVolume(self):

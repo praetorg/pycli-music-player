@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="res">
+    <file>res/seekback.png</file>
+    <file>res/seekforward.png</file>
+    <file>res/volumemax.png</file>
+    <file>res/volumemute.png</file>
     <file>res/repeat.png</file>
     <file>res/shuffle.png</file>
     <file>res/pause.png</file>

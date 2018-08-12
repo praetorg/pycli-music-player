@@ -140,6 +140,20 @@ class Player:
         self.play()
 
 
+    def seekForward(self):
+        if self.currentsongduration > (self.stepper + 5):
+            self.pause()
+            self.stepper += 5
+            self.play()
+
+
+    def seekBack(self):
+        if self.stepper > 5:
+            self.pause()
+            self.stepper -= 5
+            self.play()
+
+
     def skipTo(self, index):
         if index <= len(self.songs) and self.sanityCheck(index):
             self.counter = index
