@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   viewBox="0 0 12.7 12.7"
+   version="1.1"
+   id="svg3848"
+   inkscape:version="0.92.2 2405546, 2018-03-11"
+   sodipodi:docname="notesmain.svg">
+  <defs
+     id="defs3842" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="6.9051484"
+     inkscape:cy="23.766144"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer2"
+     showgrid="false"
+     units="px"
+     inkscape:pagecheckerboard="true"
+     inkscape:window-width="1841"
+     inkscape:window-height="1009"
+     inkscape:window-x="1103"
+     inkscape:window-y="29"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3845">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2">
+    <path
+       sodipodi:type="star"
+       style="fill:#ff6600;stroke-width:0.20623299"
+       id="path3889"
+       sodipodi:sides="5"
+       sodipodi:cx="4.69698"
+       sodipodi:cy="293.00809"
+       sodipodi:r1="6.7210116"
+       sodipodi:r2="3.5621362"
+       sodipodi:arg1="0.81252329"
+       sodipodi:arg2="1.4408418"
+       inkscape:flatsided="false"
+       inkscape:rounded="0.15"
+       inkscape:randomized="0"
+       d="m 9.318809,297.88771 c -0.4762368,0.45107 -3.509795,-1.43253 -4.1602151,-1.34752 -0.6504202,0.085 -3.0980197,2.68494 -3.6741848,2.3714 -0.57616514,-0.31353 0.2778258,-3.78068 -0.00401,-4.373 -0.2818346,-0.59232 -3.5108745,-2.1167 -3.3907274,-2.76156 0.1201472,-0.64485 3.6815009,-0.90406 4.1577377,-1.35514 0.4762368,-0.45108 0.9281798,-3.99314 1.5786,-4.07814 0.6504201,-0.085 1.9974668,3.22194 2.5736319,3.53548 0.5761651,0.31354 4.0845215,-0.3512 4.3663555,0.24112 0.281835,0.59232 -2.4469981,2.89534 -2.5671452,3.5402 -0.1201472,0.64485 1.596193,3.77608 1.1199562,4.22716 z"
+       transform="matrix(0.95825088,-0.3056321,0.31285297,0.95170485,-89.45108,-271.32532)" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-284.3)">
+    <g
+       id="g3887"
+       transform="matrix(1,0,0,1.0730533,0.2905694,-21.088477)"
+       inkscape:export-filename="/home/jom/Programming/python-music/res/note.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <ellipse
+         ry="1.1457403"
+         rx="1.7245163"
+         cy="295.28732"
+         cx="2.5985861"
+         id="path3850"
+         style="fill:#333333;stroke-width:0.26458332" />
+      <ellipse
+         style="fill:#333333;stroke-width:0.26458332"
+         id="ellipse3852"
+         cx="9.5202751"
+         cy="292.75958"
+         rx="1.7245163"
+         ry="1.1457403" />
+      <rect
+         y="286.48755"
+         x="10.417969"
+         height="6.3074775"
+         width="0.80319941"
+         id="rect3854"
+         style="fill:#333333;stroke-width:0.23799132" />
+      <rect
+         style="fill:#333333;stroke-width:0.23394585"
+         id="rect3856"
+         width="0.80319941"
+         height="6.0948658"
+         x="3.49628"
+         y="289.15701" />
+      <rect
+         transform="matrix(0.90857815,-0.41771491,0,1,0,0)"
+         y="290.74875"
+         x="3.8480783"
+         height="1.0078536"
+         width="8.5021715"
+         id="rect3858"
+         style="fill:#333333;stroke-width:0.28148532" />
+      <rect
+         style="fill:#333333;stroke-width:0.28148532"
+         id="rect3860"
+         width="8.5021715"
+         height="1.0078536"
+         x="3.8480783"
+         y="289.75656"
+         transform="matrix(0.90857815,-0.41771491,0,1,0,0)" />
+    </g>
+  </g>
+</svg>
