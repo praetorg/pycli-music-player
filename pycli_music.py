@@ -349,17 +349,24 @@ class Player:
             youtubedlthread.start()
 
 
+    def isYoutubeDLReady(self):
+        if self.youtubedl and self.youtubedlcomplete == True:
+            return True
+        else:
+            return False
+
+
     def __youtubeDL(self, link, function=None):
         self.youtubedlcomplete = False
         lastline = None
         command = ['youtube-dl', '-ix', '-o', f"{os.path.join(Path.home(), 'Music')}/%(uploader)s/%(title)s.%(ext)s", f'{link}']
         self.youtubedlprocess = subprocess.Popen(command, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-        if function:
-            for line in iter(self.youtubedlprocess.stdout.readline, b''):
-                if line != lastline and line != '':
-                    newline = line.replace("\n", "").decode("utf-8")
+        for line in iter(self.youtubedlprocess.stdout.readline, b''):
+            if line != lastline and line != '':
+                newline = line.replace("\n", "").decode("utf-8")
+                if function:
                     function(f'{newline}')
-                lastline = line
+            lastline = line
         self.youtubedlcomplete = True
 
 

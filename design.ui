@@ -454,6 +454,20 @@
           </item>
          </layout>
         </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="youtubedlLabel">
+            <property name="text">
+             <string>youtube-dl</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="youtubedlEdit"/>
+          </item>
+         </layout>
+        </item>
        </layout>
       </item>
       <item>

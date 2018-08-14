@@ -25,10 +25,20 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.backButton.clicked.connect(self.player.seekBack)
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
         self.playlistWidget.itemDoubleClicked.connect(self.playlistItem)
+        self.youtubedlEdit.returnPressed.connect(self.youtubedl)
         self.songlabeltimer = PyQt4.QtCore.QTimer()
         self.songlabeltimer.timeout.connect(self.updateSongLabel)
         self.songlabeltimer.start(500)
         self.updatePlayLabel("Playing")
+        if not self.player.isYoutubeDLReady():
+            self.youtubedlEdit.setEnabled(False)
+            self.youtubedlEdit.setText('youtube-dl not found.')
+
+
+    def youtubedl(self):
+        self.player.youtubeDL(self.youtubedlEdit.text())
+        self.youtubedlEdit.setEnabled(False)
+        self.youtubedlEdit.setText('Downloading...')
 
 
     def maxVolume(self):
@@ -99,6 +109,9 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.progressBar.setValue((self.player.currentSongStep()/round(self.player.currentSongDuration()))*100)
         if self.player.firstSong():
             self.updatePlaylistWidget()
+        if self.player.isYoutubeDLReady():
+            self.youtubedlEdit.clear()
+            self.youtubedlEdit.setEnabled(True)
 
 
     def updatePlayLabel(self, string):
