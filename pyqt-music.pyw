@@ -110,7 +110,6 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         if self.player.firstSong():
             self.updatePlaylistWidget()
         if self.player.isYoutubeDLReady():
-            self.youtubedlEdit.clear()
             self.youtubedlEdit.setEnabled(True)
 
 

@@ -231,6 +231,8 @@ class Player:
     def end(self):
         self.onstate = False
         self.stop()
+        if self.youtubedlprocess and not self.youtubedlcomplete:
+            self.youtubedlprocess.terminate()
 
 
     def stop(self):
@@ -363,7 +365,7 @@ class Player:
         self.youtubedlprocess = subprocess.Popen(command, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         for line in iter(self.youtubedlprocess.stdout.readline, b''):
             if line != lastline and line != '':
-                newline = line.replace("\n", "").decode("utf-8")
+                newline = line
                 if function:
                     function(f'{newline}')
             lastline = line
