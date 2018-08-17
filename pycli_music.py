@@ -30,6 +30,7 @@ class Player:
         self.playstate = True
         self.onstate = True
         self.musicprocess = False
+        self.youtubedlprocess = False
         self.songcomplete = False
         self.pausestate = False
         self.youtubedl = self.__getYoutubeDL()

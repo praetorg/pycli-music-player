@@ -107,10 +107,12 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         duration = time.strftime("%H:%M:%S", time.gmtime(round(self.player.currentSongDuration())))
         self.timeLabel.setText(f'{songstep}/{duration}'.replace("00:", ""))
         self.progressBar.setValue((self.player.currentSongStep()/round(self.player.currentSongDuration()))*100)
-        if self.player.firstSong():
+        if self.player.firstSong() and self.player.currentSongStep() <= 1:
             self.updatePlaylistWidget()
         if self.player.isYoutubeDLReady():
             self.youtubedlEdit.setEnabled(True)
+            if self.youtubedlEdit.text() == 'Downloading...':
+                self.youtubedlEdit.clear()
 
 
     def updatePlayLabel(self, string):
