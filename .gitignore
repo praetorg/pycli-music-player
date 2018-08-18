@@ -60,3 +60,7 @@ target/
 \.vscode/\.ropeproject/
 
 \.vscode/
+
+pyqt5-music\.pro\.user
+
+pyqt5-music\.pro

@@ -33,6 +33,7 @@ class Player:
         self.youtubedlprocess = False
         self.songcomplete = False
         self.pausestate = False
+        self.currentlyplaying = 'None'
         self.youtubedl = self.__getYoutubeDL()
         self.youtubedlcomplete = True
         self.stepper = 0
@@ -82,6 +83,15 @@ class Player:
         for index, song in enumerate(self.songs):
             songs.append(f'{index}: {os.path.split(song)[-1]}')
         return songs
+
+
+    def getSongAt(self, index):
+        if index <= len(self.songs):
+            return f'{index}: {os.path.split(self.songs[index])[-1]}'
+
+
+    def getPlaylistLength(self):
+        return len(self.songs)
 
 
     def sanityCheck(self, index):
@@ -181,10 +191,12 @@ class Player:
 
 
     def __shuffle(self):
-        self.loadPlaylists()
         if self.shuffle:
             random.shuffle(self.songs)
             random.shuffle(self.nextsongs)
+        else:
+            self.songs.sort()
+            self.nextsongs.sort()
 
 
     def previous(self):
@@ -288,6 +300,7 @@ class Player:
     def __play(self):
         self.songcomplete = False
         if self.player and self.prober:
+            self.currentlyplaying = self.currentSongName()
             duration = self.currentSongDuration()
             timer = time.time()
             stepper = 0
@@ -341,6 +354,10 @@ class Player:
 
     def currentSongName(self):
         return f'{self.counter}: {os.path.split(self.currentSong())[-1]}'
+
+
+    def currentlyPlaying(self):
+        return self.currentlyplaying
 
 
     def youtubeDL(self, link, function=None):

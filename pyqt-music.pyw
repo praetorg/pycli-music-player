@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 import sys
-import PyQt4
+import PyQt5
 import design
 import time
 import pycli_music
 
 
-class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
+class MusicGUI(PyQt5.QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
-        super(PyQt4.QtGui.QMainWindow, self).__init__()
+        super(PyQt5.QtWidgets.QMainWindow, self).__init__()
         self.setupUi(self)
         self.player = pycli_music.Player(None, True, True)
         self.player.nonblockingLoop()
+        self.counter = 0
         self.playButton.clicked.connect(self.playPauseToggle)
         self.stopButton.clicked.connect(self.stop)
         self.nextButton.clicked.connect(self.next)
@@ -26,9 +27,9 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         self.repeatBox.stateChanged.connect(self.player.repeatToggle)
         self.playlistWidget.itemDoubleClicked.connect(self.playlistItem)
         self.youtubedlEdit.returnPressed.connect(self.youtubedl)
-        self.songlabeltimer = PyQt4.QtCore.QTimer()
+        self.songlabeltimer = PyQt5.QtCore.QTimer()
         self.songlabeltimer.timeout.connect(self.updateSongLabel)
-        self.songlabeltimer.start(500)
+        self.songlabeltimer.start(100)
         self.updatePlayLabel("Playing")
         if not self.player.isYoutubeDLReady():
             self.youtubedlEdit.setEnabled(False)
@@ -59,17 +60,16 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
         if self.player.skipTo(self.playlistWidget.currentRow()):
             pass
         else:
-            self.updatePlaylistWidget()
+            self.updatePlaylist()
 
 
-    def updatePlaylistWidget(self):
-        self.playlistWidget.clear()
-        self.playlistWidget.addItems(self.player.getPlaylist())
+    def updatePlaylist(self):
+        self.counter = 0
 
 
     def shuffle(self):
         self.player.shuffleToggle()
-        self.updatePlaylistWidget()
+        self.updatePlaylist()
 
 
     def next(self):
@@ -102,13 +102,19 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
 
     def updateSongLabel(self):
-        self.songLabel.setText(self.player.currentSongName())
+        self.songLabel.setText(self.player.currentlyPlaying())
         songstep = time.strftime("%H:%M:%S", time.gmtime(self.player.currentSongStep()))
         duration = time.strftime("%H:%M:%S", time.gmtime(round(self.player.currentSongDuration())))
         self.timeLabel.setText(f'{songstep}/{duration}'.replace("00:", ""))
         self.progressBar.setValue((self.player.currentSongStep()/round(self.player.currentSongDuration()))*100)
         if self.player.firstSong() and self.player.currentSongStep() <= 1:
-            self.updatePlaylistWidget()
+            self.updatePlaylist()
+        elif self.counter < self.player.getPlaylistLength():
+            if not self.playlistWidget.item(self.counter):
+                self.playlistWidget.addItem(self.player.getSongAt(self.counter))
+            else:
+                self.playlistWidget.item(self.counter).setText(self.player.getSongAt(self.counter))
+            self.counter += 1
         if self.player.isYoutubeDLReady():
             self.youtubedlEdit.setEnabled(True)
             if self.youtubedlEdit.text() == 'Downloading...':
@@ -117,11 +123,11 @@ class MusicGUI(PyQt4.QtGui.QMainWindow, design.Ui_MainWindow):
 
     def updatePlayLabel(self, string):
         self.playingLabel.setText(string)
-        self.playingLabel.setFont(PyQt4.QtGui.QFont("", weight=PyQt4.QtGui.QFont.Bold))
+        self.playingLabel.setFont(PyQt5.QtGui.QFont("", weight=PyQt5.QtGui.QFont.Bold))
 
 
 if __name__ == '__main__':
-    app = PyQt4.QtGui.QApplication(sys.argv)
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
     form = MusicGUI()
     form.show()
     app.exec_()
