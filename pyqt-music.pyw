@@ -103,9 +103,10 @@ class MusicGUI(PyQt5.QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def updateSongLabel(self):
         self.songLabel.setText(self.player.currentlyPlaying())
-        songstep = time.strftime("%H:%M:%S", time.gmtime(self.player.currentSongStep()))
-        duration = time.strftime("%H:%M:%S", time.gmtime(round(self.player.currentSongDuration())))
-        self.timeLabel.setText(f'{songstep}/{duration}'.replace("00:", ""))
+        songstep = stripLeadingZeros(time.strftime("%H:%M:%S", time.gmtime(self.player.currentSongStep())))
+        duration = stripLeadingZeros(time.strftime("%H:%M:%S", time.gmtime(round(self.player.currentSongDuration()))))
+        timelabeltext = f'{songstep} / {duration}'
+        self.timeLabel.setText(timelabeltext)
         self.progressBar.setValue((self.player.currentSongStep()/round(self.player.currentSongDuration()))*100)
         if self.player.firstSong() and self.player.currentSongStep() <= 1:
             self.updatePlaylist()
@@ -124,6 +125,16 @@ class MusicGUI(PyQt5.QtWidgets.QMainWindow, design.Ui_MainWindow):
     def updatePlayLabel(self, string):
         self.playingLabel.setText(string)
         self.playingLabel.setFont(PyQt5.QtGui.QFont("", weight=PyQt5.QtGui.QFont.Bold))
+
+
+def stripLeadingZeros(string):
+    strippedstring = string
+    for index, char in enumerate(string):
+        if char is not '0' and char is not ':' and char is not ' ':
+            break
+        else:
+            strippedstring = string[(index + 1):]
+    return strippedstring
 
 
 if __name__ == '__main__':
